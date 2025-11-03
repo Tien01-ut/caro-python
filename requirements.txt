@@ -1,0 +1,13 @@
+# Caro Game Python - Requirements
+
+# Database
+mysql-connector-python==8.2.0
+
+# GUI (Tkinter is built-in with Python)
+# No additional GUI libraries needed for basic version
+
+# Optional: For better UI
+# pillow==10.1.0  # For image handling
+
+# Optional: For AI player
+# numpy==1.24.3   # For game logic calculations
