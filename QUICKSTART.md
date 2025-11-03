@@ -4,14 +4,10 @@
 
 ### 1. Setup Database (1 phút)
 ```bash
-mysql -u root -p < setup_database.sql
+python create_database.py
 ```
 
-### 2. Config (30 giây)
-Mở `server/config.py`, sửa:
-```python
-'password': 'your_mysql_password_here'
-```
+Script tự động tạo database và thêm tài khoản mẫu
 
 ### 3. Install Dependencies (1 phút)
 ```bash
@@ -55,7 +51,7 @@ caro-python/
 ├── shared/            # Shared code
 │   ├── models.py
 │   └── constants.py
-└── setup_database.sql # SQL script
+└── create_database.py # Database setup script
 ```
 
 ---
@@ -89,8 +85,9 @@ pip install mysql-connector-python
 ## 📚 Đọc thêm
 
 - `README.md` - Tổng quan dự án
-- `INSTALL.md` - Hướng dẫn chi tiết
-- `setup_database.sql` - Database schema
+- `INSTALL.md` - Hướng dẫn cài đặt chi tiết
+- `MULTIPLAYER_GUIDE.md` - Hướng dẫn chơi trên 2 máy
+- `create_database.py` - Script tạo database
 
 ---
 

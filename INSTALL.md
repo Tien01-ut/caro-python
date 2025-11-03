@@ -15,18 +15,21 @@ python --version
 
 ## Bước 3: Tạo Database
 
-### Cách 1: Sử dụng MySQL Command Line
+### Sử dụng script Python (Khuyên dùng)
 
 ```bash
-mysql -u root -p < setup_database.sql
+python create_database.py
 ```
 
-### Cách 2: Sử dụng MySQL Workbench
+Script sẽ tự động:
+- Tạo database `caro_game`
+- Tạo bảng `user` với các trường cần thiết
+- Thêm 5 tài khoản mẫu để test
 
-1. Mở MySQL Workbench
-2. Kết nối đến MySQL Server
-3. Mở file `setup_database.sql`
-4. Chạy script (Execute)
+**Tài khoản mẫu:**
+- `player1` / `player1`
+- `player2` / `player2`
+- `admin` / `admin`
 
 ## Bước 4: Cài đặt thư viện Python
 
@@ -144,7 +147,10 @@ VALUES ('test', 'test', 'Test Player', 'avatar1');
 DROP DATABASE caro_game;
 ```
 
-Sau đó chạy lại `setup_database.sql`
+Sau đó chạy lại:
+```bash
+python create_database.py
+```
 
 ## Tính năng
 
