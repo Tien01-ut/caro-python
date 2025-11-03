@@ -43,11 +43,7 @@
 - ✅ **Chơi với AI thông minh** (3 độ khó: Dễ, Trung bình, Khó)
 - ✅ AI sử dụng thuật toán **Minimax với Alpha-Beta Pruning**
 
-### 🌐 Multiplayer
-- ✅ Chơi trên cùng 1 máy (nhiều client)
-- ✅ Chơi trên 2 máy khác nhau (LAN/WiFi)
-- ✅ Cấu hình IP dễ dàng qua file config
-- ✅ Auto-reconnect và xử lý lỗi mạng
+
 
 ---
 
