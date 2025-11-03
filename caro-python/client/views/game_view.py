@@ -11,7 +11,6 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from shared.constants import BOARD_SIZE, WIN_CONDITION, GAME_TIMEOUT
 
-
 class GameView:
     """Game playing window"""
     
