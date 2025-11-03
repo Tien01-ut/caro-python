@@ -1,32 +1,52 @@
 # Caro Game - Python Version
 
-Game Caro (Tic-Tac-Toe) multiplayer với kiến trúc client-server, được chuyển đổi từ Java sang Python.
+Game Caro (Tic-Tac-Toe) multiplayer với kiến trúc client-server, hỗ trợ chơi trực tuyến và chơi với AI.
 
-## Tính năng
+## ✨ Tính năng
 
-### Server
-- Xử lý đa luồng với nhiều client đồng thời
-- Quản lý phòng chơi
-- Hệ thống đăng nhập/đăng ký
-- Quản lý bạn bè
-- Bảng xếp hạng
-- Lưu trữ dữ liệu với MySQL
+### 🖥️ Server
+- ✅ Xử lý đa luồng với nhiều client đồng thời
+- ✅ Quản lý phòng chơi (tạo, vào, rời phòng)
+- ✅ Hệ thống đăng nhập/đăng ký với xác thực
+- ✅ Quản lý trạng thái người chơi (online, offline, playing)
+- ✅ Bảng xếp hạng theo thống kê thắng/thua
+- ✅ Lưu trữ dữ liệu với MySQL
+- ✅ Protocol messaging system
 
-### Client
-- Giao diện đồ họa với Tkinter
-- Đăng nhập/Đăng ký
-- Tạo và tham gia phòng
-- Chơi game Caro 15x15
-- Chat với người chơi khác
-- Xem bảng xếp hạng
-- Quản lý danh sách bạn bè
-- Chơi với AI (chế độ đơn)
+### 💻 Client
+- ✅ Giao diện đồ họa đẹp mắt với Tkinter
+- ✅ Đăng nhập/Đăng ký tài khoản
+- ✅ Tạo phòng (có/không mật khẩu)
+- ✅ Tham gia phòng từ danh sách
+- ✅ Chơi game Caro 15x15 (5 in a row to win)
+- ✅ Timer 60 giây cho mỗi lượt
+- ✅ Hiển thị điểm số và lượt chơi
+- ✅ Chat server (hiển thị thông báo)
+- ✅ Xem bảng xếp hạng
+- ✅ **Chơi với AI thông minh** (3 độ khó: Dễ, Trung bình, Khó)
+- ✅ AI sử dụng thuật toán **Minimax với Alpha-Beta Pruning**
 
-## Yêu cầu
+### 🌐 Multiplayer
+- ✅ Chơi trên cùng 1 máy (nhiều client)
+- ✅ Chơi trên 2 máy khác nhau (LAN/WiFi)
+- ✅ Cấu hình IP dễ dàng qua file config
+- ✅ Auto-reconnect và xử lý lỗi mạng
 
-- Python 3.8+
-- MySQL 8.0+ (XAMPP hoặc standalone)
-- Các thư viện Python (xem requirements.txt)
+## 🛠️ Công nghệ sử dụng
+
+- **Language:** Python 3.8+
+- **GUI:** Tkinter (built-in)
+- **Database:** MySQL 8.0+ (XAMPP recommended)
+- **Networking:** Socket programming
+- **Threading:** Multi-threaded server, Queue-based client
+- **AI Algorithm:** Minimax with Alpha-Beta Pruning
+- **Libraries:** mysql-connector-python
+
+## 📋 Yêu cầu
+
+- Python 3.8 trở lên
+- MySQL 8.0+ (XAMPP hoặc MySQL standalone)
+- Các thư viện Python (xem `requirements.txt`)
 
 ## Cài đặt
 
@@ -110,29 +130,41 @@ python client/main.py
 
 ```
 caro-python/
-├── server/
-│   ├── server.py           # Server chính
-│   ├── server_thread.py    # Xử lý client
-│   ├── room.py            # Quản lý phòng chơi
-│   ├── user_dao.py        # Truy vấn database
-│   ├── config.py          # Cấu hình
-│   └── admin_gui.py       # Giao diện quản trị
-├── client/
-│   ├── main.py            # Entry point
-│   ├── client.py          # Client logic
-│   ├── socket_handle.py   # Xử lý socket
-│   └── views/
-│       ├── login_view.py
-│       ├── register_view.py
-│       ├── home_view.py
-│       ├── game_view.py
-│       └── ...
-├── shared/
-│   ├── models.py          # Data models
-│   └── constants.py       # Hằng số chung
-├── assets/                # Hình ảnh, icon
-└── requirements.txt       # Dependencies
-
+├── server/                        # Server side
+│   ├── server.py                  # Server chính, xử lý kết nối
+│   ├── server_thread.py           # Xử lý từng client
+│   ├── room.py                    # Quản lý phòng chơi
+│   ├── user_dao.py                # Truy vấn database
+│   └── config.py                  # Cấu hình database & server
+│
+├── client/                        # Client side
+│   ├── main.py                    # Entry point
+│   ├── client.py                  # Client logic chính
+│   ├── socket_handle.py           # Xử lý kết nối socket
+│   ├── ai_player.py               # AI player (Minimax algorithm)
+│   └── views/                     # Giao diện người dùng
+│       ├── login_view.py          # Màn hình đăng nhập
+│       ├── register_view.py       # Màn hình đăng ký
+│       ├── home_view.py           # Trang chủ
+│       ├── game_view.py           # Màn hình chơi multiplayer
+│       └── game_ai_view.py        # Màn hình chơi với AI
+│
+├── shared/                        # Code dùng chung
+│   ├── models.py                  # Data models (User, Point)
+│   └── constants.py               # Hằng số & protocol messages
+│
+├── assets/                        # Tài nguyên (hình ảnh, icon, âm thanh)
+│
+├── network_config.py              # Cấu hình IP cho multiplayer
+├── check_ip.py                    # Script kiểm tra IP
+├── create_database.py             # Script tự động tạo database
+├── setup_database_mysql.sql       # SQL script cho MySQL
+├── requirements.txt               # Python dependencies
+│
+├── README.md                      # Tài liệu chính
+├── QUICKSTART.md                  # Hướng dẫn nhanh 5 phút
+├── INSTALL.md                     # Hướng dẫn cài đặt chi tiết
+└── MULTIPLAYER_GUIDE.md           # Hướng dẫn chơi trên 2 máy
 ```
 
 ## Hướng dẫn sử dụng
@@ -164,7 +196,57 @@ caro-python/
 - Bàn cờ 15x15 ô
 - Người đầu tiên có 5 ô liên tiếp (ngang/dọc/chéo) thắng
 - Mỗi lượt có 60 giây
+- Player 1 (X) đánh trước, Player 2 (O) đánh sau
 
-## License
+---
+
+## 📚 Tài liệu thêm
+
+- [QUICKSTART.md](QUICKSTART.md) - Hướng dẫn nhanh 5 phút
+- [INSTALL.md](INSTALL.md) - Hướng dẫn cài đặt chi tiết từng bước
+- [MULTIPLAYER_GUIDE.md](MULTIPLAYER_GUIDE.md) - Hướng dẫn chi tiết chơi trên 2 máy
+
+## 🎯 Các lệnh hữu ích
+
+```bash
+# Kiểm tra IP máy tính
+python check_ip.py
+
+# Tạo database tự động
+python create_database.py
+
+# Chạy server
+python server/server.py
+
+# Chạy client
+python client/main.py
+```
+
+## 🐛 Troubleshooting
+
+### Lỗi kết nối database
+- Đảm bảo MySQL/XAMPP đã chạy
+- Kiểm tra `server/config.py` có đúng thông tin không
+- Chạy `python create_database.py` để tạo database
+
+### Lỗi kết nối server
+- Kiểm tra server có đang chạy không
+- Kiểm tra IP trong `network_config.py`
+- Kiểm tra Firewall có chặn port 7777 không
+
+### AI chạy chậm
+- Độ khó "Khó" sẽ mất vài giây để tính toán
+- Chọn độ khó "Trung bình" để cân bằng
+
+## 🎯 Điểm nổi bật
+
+Dự án được phát triển với các tính năng nổi bật:
+- 🤖 AI thông minh sử dụng thuật toán Minimax với Alpha-Beta Pruning
+- 🌐 Hỗ trợ multiplayer qua mạng LAN/WiFi
+- 🎨 Giao diện người dùng trực quan, dễ sử dụng
+- ⚡ Xử lý đa luồng hiệu quả, hỗ trợ nhiều người chơi đồng thời
+- 🛠️ Các tiện ích hỗ trợ setup và cấu hình dễ dàng
+
+## 📄 License
 
 MIT License

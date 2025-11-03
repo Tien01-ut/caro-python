@@ -94,7 +94,6 @@ pip install mysql-connector-python
 
 ---
 
-**Converted from Java to Python**
-Original: github.com/Duc-ju/caro-game-client
+**Caro Game - Python Edition**
 
-Happy Gaming! 🎉
+Chúc bạn chơi game vui vẻ! 🎉
