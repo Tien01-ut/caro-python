@@ -6,6 +6,7 @@ import socket
 import threading
 import sys
 import os
+import time
 from queue import Queue
 
 # Add parent directory to path
@@ -24,6 +25,8 @@ class SocketHandle:
         self.is_connected = False
         self.receive_thread = None
         self.message_queue = Queue()  # Thread-safe queue
+        self.process_thread = None  # Message processing thread
+        self._stop_processing = False  # Flag to stop processing thread
     
     def connect(self):
         """Connect to server"""
@@ -38,6 +41,9 @@ class SocketHandle:
             self.receive_thread.daemon = True
             self.receive_thread.start()
             
+            # Start processing thread
+            self.start_processing()
+            
             return True
         except Exception as e:
             print(f"Error connecting to server: {e}")
@@ -48,6 +54,7 @@ class SocketHandle:
         try:
             if self.socket and self.is_connected:
                 self.socket.sendall((message + "\n").encode('utf-8'))
+                print(f"[DEBUG] Sent message: {message}")
         except Exception as e:
             print(f"Error sending message: {e}")
             self.is_connected = False
@@ -59,6 +66,7 @@ class SocketHandle:
             try:
                 data = self.socket.recv(4096).decode('utf-8')
                 if not data:
+                    print("[DEBUG] Connection closed by server (no data)")
                     break
                 
                 buffer += data
@@ -66,6 +74,7 @@ class SocketHandle:
                     message, buffer = buffer.split('\n', 1)
                     if message:
                         # Put message in queue instead of processing directly
+                        print(f"[DEBUG] Queued message: {message}")
                         self.message_queue.put(message)
             
             except Exception as e:
@@ -75,6 +84,33 @@ class SocketHandle:
         self.is_connected = False
         print("Disconnected from server")
     
+    def start_processing(self):
+        """Start message processing thread"""
+        if self.process_thread is None:
+            self._stop_processing = False
+            self.process_thread = threading.Thread(target=self._process_queue_thread)
+            self.process_thread.daemon = True
+            self.process_thread.start()
+            print("[DEBUG] Message processing thread started")
+
+    def _process_queue_thread(self):
+        """Process messages in a separate thread"""
+        print("[DEBUG] Message processing thread running")
+        while not self._stop_processing:
+            try:
+                # Process all pending messages
+                while not self.message_queue.empty():
+                    try:
+                        message = self.message_queue.get_nowait()
+                        print(f"[DEBUG] Processing message: {message}")
+                        self.process_message(message)
+                    except:
+                        break
+                # Sleep a bit to prevent busy-waiting
+                time.sleep(0.1)
+            except:
+                pass
+
     def process_message(self, message):
         """Process message from server"""
         try:
@@ -83,6 +119,7 @@ class SocketHandle:
                 return
             
             command = parts[0]
+            print(f"[DEBUG] Processing command: {command}")
         except Exception as e:
             print(f"Error parsing message: {e}")
             return
@@ -122,6 +159,7 @@ class SocketHandle:
         
         # Room list
         elif command == "room-list":
+            print("[DEBUG] Received room list")
             rooms = []
             i = 1
             while i < len(parts):
@@ -136,10 +174,12 @@ class SocketHandle:
                     i += 4
                 else:
                     break
+            print(f"[DEBUG] Room list: {len(rooms)} rooms")
             self.client.on_room_list(rooms)
         
         # New room created
         elif command == "new-room":
+            print("[DEBUG] New room notification received")
             if len(parts) >= 4:
                 room = {
                     'id': int(parts[1]),
@@ -147,11 +187,13 @@ class SocketHandle:
                     'host': parts[3],
                     'has_password': parts[4] == '1' if len(parts) > 4 else False
                 }
+                print(f"[DEBUG] New room: {room}")
                 self.client.on_new_room(room)
         
         # Create room success
         elif command == "create-room-success":
             room_id = int(parts[1]) if len(parts) > 1 else 0
+            print(f"[DEBUG] Room {room_id} created successfully")
             self.client.on_create_room_success(room_id)
         
         # Go to room
@@ -161,6 +203,7 @@ class SocketHandle:
                 competitor_ip = parts[2]
                 is_host = parts[3] == '1'
                 competitor = User.from_string(','.join(parts[4:]))
+                print(f"[DEBUG] Going to room {room_id}, is_host={is_host}")
                 self.client.on_go_to_room(room_id, competitor, is_host, competitor_ip)
         
         # Room errors
@@ -219,11 +262,13 @@ class SocketHandle:
         
         # Game events
         elif command == "start-game":
+            print("[DEBUG] Game starting!")
             self.client.on_start_game()
         elif command == "competitor-move":
             if len(parts) >= 3:
                 x = int(parts[1])
                 y = int(parts[2])
+                print(f"[DEBUG] Competitor moved to ({x}, {y})")
                 self.client.on_competitor_move(x, y)
         elif command == "you-win":
             self.client.on_game_result("win")
@@ -234,6 +279,7 @@ class SocketHandle:
         elif command == "draw-accept":
             self.client.on_draw_accept()
         elif command == "competitor-left":
+            print("[DEBUG] Competitor left the game")
             self.client.on_competitor_left()
         
         # Chat in game
@@ -241,25 +287,18 @@ class SocketHandle:
             msg = ','.join(parts[1:]) if len(parts) > 1 else ""
             self.client.on_receive_message(msg)
     
-    def process_queue(self):
-        """Process messages from queue in main thread"""
-        try:
-            while not self.message_queue.empty():
-                message = self.message_queue.get_nowait()
-                self.process_message(message)
-        except:
-            pass
-        
-        # Schedule next check if still connected
-        if self.is_connected and self.client.current_view and hasattr(self.client.current_view, 'window'):
-            try:
-                self.client.current_view.window.after(100, self.process_queue)
-            except:
-                pass
-    
     def close(self):
         """Close connection"""
         self.is_connected = False
+        # Stop message processing thread
+        self._stop_processing = True
+        if self.process_thread:
+            try:
+                self.process_thread.join(timeout=1.0)
+            except:
+                pass
+            self.process_thread = None
+        # Close socket
         if self.socket:
             try:
                 self.socket.close()
